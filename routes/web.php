@@ -26,16 +26,27 @@ Route::get('/log-in', function (){
     return redirect('/login');
 });
 
-Route::middleware(['auth'])->group(function (){
-    Route::prefix('app')->group(function (){
-        Route::get('dashboard', DashboardController::class)->name('dashboard');
-        Route::resource('tasks', TaskController::class);
-    });
+    Route::group(
+        [
+        'middleware' => 'auth',
+        'prefix' => 'app'
+        ],
+        function(){
+            Route::get('dashboard' , DashboardController::class)->name('dashboard');
+            Route::resources('tasks' , TaskController::class);
+        }
+    );
 
-    Route::middleware(['is_admin'])->prefix('admin')->group(function (){
-        Route::get('stats', \App\Http\Controllers\Admin\StatsController::class);
+ Route::group(
+        [
+        'middleware' => 'is_admin',
+        'prefix' => 'admin'
+        ],
+        function(){
+           Route::get('stats', \App\Http\Controllers\Admin\StatsController::class);
         Route::get('dashboard', \App\Http\Controllers\Admin\DashboardController::class);
-    });
-});
+        }
+    );
+
 
 require __DIR__.'/auth.php';
