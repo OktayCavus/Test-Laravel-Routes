@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TaskController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,27 +31,16 @@ Route::get('/log-in', function (){
     return redirect('/login');
 });
 
-    Route::group(
-        [
-        'middleware' => 'auth',
-        'prefix' => 'app'
-        ],
-        function(){
-            Route::get('dashboard' , DashboardController::class)->name('dashboard');
-            Route::resources('tasks' , TaskController::class);
-        }
-    );
+Route::middleware(['auth'])->group(function (){
+    Route::prefix('app')->group(function (){
+        Route::get('dashboard', DashboardController::class)->name('dashboard');
+        Route::resource('tasks', TaskController::class);
+    });
 
- Route::group(
-        [
-        'middleware' => 'is_admin',
-        'prefix' => 'admin'
-        ],
-        function(){
-           Route::get('stats', \App\Http\Controllers\Admin\StatsController::class);
+    Route::middleware(['is_admin'])->prefix('admin')->group(function (){
+        Route::get('stats', \App\Http\Controllers\Admin\StatsController::class);
         Route::get('dashboard', \App\Http\Controllers\Admin\DashboardController::class);
-        }
-    );
-
+    });
+});
 
 require __DIR__.'/auth.php';
